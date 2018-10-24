@@ -1,7 +1,13 @@
 from flask import Flask, request, redirect
-from twilio.twiml.messaging_response import MessagingResponse
+#from twilio.twiml.messaging_response import MessagingResponse
+import os
+from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
+
+account_sid = os.environ['TWILIO_ACCOUNT_SID']
+auth_token = os.environ['TWILIO_AUTH_TOKEN']
+client = TwilioRestClient(account_sid, auth_token)
 
 def nato_convert(text):
     letterToNato = {'a':'alpha', 'b':'bravo', 'c':'charlie', 'd':'delta', 'e':'echo', 
@@ -33,16 +39,18 @@ def incoming_sms():
     body = request.values.get('Body', None)
 
     # Start our TwiML response
-    resp = MessagingResponse()
+    #resp = MessagingResponse()
 
     nato = nato_convert(body.lower())
 
     if nato:
-        resp.message(nato)
+        #resp.message(nato)
+        message = client.messages.create(to=os.environ['PHONE_NUMBER'], from_=os.environ['TWILIO_NUMBER'], body=nato)
     else:
-        resp.message("Invalid character in message!")
+        message = client.messages.create(to=os.environ['PHONE_NUMBER'], from_=os.environ['TWILIO_NUMBER'], body="Invalid character in message")
 
-    return str(resp)
+    #return str(resp)
+    return '', 200
 
 if __name__ == "__main__":
     app.run(debug=True)
