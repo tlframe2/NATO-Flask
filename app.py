@@ -1,15 +1,22 @@
+""" Converts each letter in text message to its corresponding NATO phonetic alphabet spelling, 
+
+then texts result back to user. """
+
 from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
-# import os
-# from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
 
-# account_sid = os.environ['TWILIO_ACCOUNT_SID']
-# auth_token = os.environ['TWILIO_AUTH_TOKEN']
-# client = TwilioRestClient(account_sid, auth_token)
-
 def nato_convert(text):
+    """
+    Converts letters in word to NATO phonetic alphabet spelling.
+
+    Parameters:
+        text(string): body of text message sent by user
+    Returns:
+        NATO spelling of text message
+    """
+
     letterToNato = {'a':'alpha', 'b':'bravo', 'c':'charlie', 'd':'delta', 'e':'echo', 
                     'f':'foxtrot', 'g':'golf', 'h':'hotel', 'i':'india','j':'juliett', 
                     'k':'kilo', 'l':'lima', 'm':'mike', 'n':'november', 'o':'oscar', 'p':'papa', 
@@ -28,30 +35,25 @@ def nato_convert(text):
 
     return result_str
 
-@app.route("/")
-def hello_world():
-    return "Hello world"
-
 @app.route("/sms", methods=['GET', 'POST'])
 def incoming_sms():
-    """Send a dynamic reply to an incoming text message"""
-    # Get the message the user sent our Twilio number
+    """ Receives and returns text messages """
+
+    # Get message user sent to Twilio number
     body = request.values.get('Body', None)
 
-    # Start our TwiML response
+    # Start TwiML response
     resp = MessagingResponse()
 
+    # Convert message to NATO spelling
     nato = nato_convert(body.lower())
 
     if nato:
         resp.message(nato)
-        #message = client.messages.create(to=os.environ['PHONE_NUMBER'], from_=os.environ['TWILIO_NUMBER'], body=nato)
     else:
         resp.message("Invalid character in message")
-        #message = client.messages.create(to=os.environ['PHONE_NUMBER'], from_=os.environ['TWILIO_NUMBER'], body="Invalid character in message")
 
     return str(resp)
-    #return '', 200
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
