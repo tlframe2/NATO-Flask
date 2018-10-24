@@ -22,6 +22,10 @@ def nato_convert(text):
 
     return result_str
 
+@app.route("/")
+def hello_world():
+    return "Hello world"
+
 @app.route("/sms", methods=['GET', 'POST'])
 def incoming_sms():
     """Send a dynamic reply to an incoming text message"""
